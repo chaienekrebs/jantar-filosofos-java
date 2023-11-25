@@ -1,23 +1,28 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package classes;
+
+/**
+ *
+ * @author chayk
+ */
 import java.io.PrintWriter;
 import java.util.concurrent.Semaphore;
 
-public class JantarDosFilosofos {
+public class JantarDosFilosofosConcorrente {
 
     private Thread[] filosofos;
     private static final int NUMFILO = 5;
-    private static Semaphore[] hashi = new Semaphore[NUMFILO];
+    private static Semaphore[] hashi;
     private static Semaphore saleiro = new Semaphore(1);
-   private PrintWriter clienteOut;
-   
-    public void iniciarJantar(PrintWriter out) {
-         this.clienteOut = out;
+    private PrintWriter clienteOut;
 
+    public void iniciarJantar(PrintWriter out) {
+        this.clienteOut = out;
         // Inicializa os semáforos no bloco estático
+        hashi = new Semaphore[NUMFILO];
         for (int i = 0; i < NUMFILO; i++) {
             hashi[i] = new Semaphore(1);
         }
@@ -43,6 +48,7 @@ public class JantarDosFilosofos {
     }
 
     public class Filosofo implements Runnable {
+
         private int id;
         private int dir;
         private int esq;
@@ -58,13 +64,20 @@ public class JantarDosFilosofos {
             try {
                 while (!Thread.interrupted()) {
                     meditar();
-                    saleiro.acquire(); // pega saleiro
-                    hashi[dir].acquire(); // pega palito direito
-                    hashi[esq].acquire(); // pega palito esquerdo
-                    saleiro.release(); // devolve saleiro
-                    comer();
-                    hashi[dir].release(); // devolve palito direito
-                    hashi[esq].release(); // devolve palito esquerdo
+                    if (saleiro.tryAcquire()) { // tenta pegar o saleiro
+                        if (hashi[dir].tryAcquire()) { // tenta pegar palito direito
+                            if (hashi[esq].tryAcquire()) { // tenta pegar palito esquerdo
+                                saleiro.release(); // devolve saleiro
+                                comer();
+                                hashi[dir].release(); // devolve palito direito
+                                hashi[esq].release(); // devolve palito esquerdo
+                            } else {
+                                saleiro.release(); // libera o saleiro se não conseguiu o palito esquerdo
+                            }
+                        } else {
+                            saleiro.release(); // libera o saleiro se não conseguiu o palito direito
+                        }
+                    }
                 }
             } catch (InterruptedException e) {
                 // A interrupção é esperada ao finalizar o jantar

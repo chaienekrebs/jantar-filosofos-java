@@ -55,7 +55,7 @@ public class SocketClienteTCP {
 
                         if ("Jantar finalizado!".equals(resposta)) {
                             // Reinicia o bloco interno
-                            System.out.println("Jantar finalizado! Reiniciando o bloco interno.");
+                            System.out.println("Jantar finalizado!");
                             continue clienteLoop;
                         } else {
                             /* Imprime na tela o retorno */
