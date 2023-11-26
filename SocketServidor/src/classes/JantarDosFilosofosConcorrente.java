@@ -64,20 +64,14 @@ public class JantarDosFilosofosConcorrente {
             try {
                 while (!Thread.interrupted()) {
                     meditar();
-                    if (saleiro.tryAcquire()) { // tenta pegar o saleiro
-                        if (hashi[dir].tryAcquire()) { // tenta pegar palito direito
-                            if (hashi[esq].tryAcquire()) { // tenta pegar palito esquerdo
-                                saleiro.release(); // devolve saleiro
-                                comer();
-                                hashi[dir].release(); // devolve palito direito
-                                hashi[esq].release(); // devolve palito esquerdo
-                            } else {
-                                saleiro.release(); // libera o saleiro se não conseguiu o palito esquerdo
-                            }
-                        } else {
-                            saleiro.release(); // libera o saleiro se não conseguiu o palito direito
+
+                    if (hashi[dir].tryAcquire()) { // tenta pegar palito direito
+                        if (hashi[esq].tryAcquire()) { // tenta pegar palito esquerdo
+                            comer();
+                            hashi[dir].release(); // devolve palito direito
+                            hashi[esq].release(); // devolve palito esquerdo
                         }
-                    }
+                    } 
                 }
             } catch (InterruptedException e) {
                 // A interrupção é esperada ao finalizar o jantar
