@@ -87,7 +87,7 @@ public class Form extends javax.swing.JFrame {
     private void buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonMouseClicked
         String teste = inputParam.getText();
 
-                 SocketClienteTCP cliente = new SocketClienteTCP("localhost", 6789, teste);
+        SocketClienteTCP cliente = new SocketClienteTCP("localhost", 6789, teste);
     }//GEN-LAST:event_buttonMouseClicked
 
     /**
