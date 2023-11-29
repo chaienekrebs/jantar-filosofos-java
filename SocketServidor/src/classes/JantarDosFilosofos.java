@@ -61,8 +61,8 @@ public class JantarDosFilosofos {
                     saleiro.acquire(); // pega saleiro
                     hashi[dir].acquire(); // pega palito direito
                     hashi[esq].acquire(); // pega palito esquerdo
-                    saleiro.release(); // devolve saleiro
                     comer();
+                    saleiro.release(); // devolve saleiro
                     hashi[dir].release(); // devolve palito direito
                     hashi[esq].release(); // devolve palito esquerdo
                 }
