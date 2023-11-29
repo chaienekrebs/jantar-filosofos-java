@@ -5,8 +5,13 @@
  */
 package socketcliente;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+import java.io.IOException;
 
 public class SocketClienteTCP {
 
@@ -14,67 +19,43 @@ public class SocketClienteTCP {
     BufferedReader in;
     PrintWriter out;
     BufferedReader inReader;
-    String mensagemEnviar;
+
     String resposta;
 
-    public SocketClienteTCP(String servidor, int porta) {
-
+    public SocketClienteTCP(String servidor, int porta, String mensagemEnviar) {
         try {
-            /* Inicialização de socket TCP */
             socket = new Socket(servidor, porta);
-
-            /* Inicialização dos fluxos de entrada e saída */
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
-
-            /* Abertura da entrada padrão */
             inReader = new BufferedReader(new InputStreamReader(System.in));
 
-            clienteLoop:
-            while (true) {
-                System.out.print("Msg: ");
-                while ((mensagemEnviar = inReader.readLine()) != null) {
+            if ("FIM".equals(mensagemEnviar)) {
+                System.out.println("Encerrando o cliente.");
+                out.close();
+                in.close();
+                socket.close();
+                return;
+            }
 
-                    if ("FIM".equals(mensagemEnviar)) {
-                        System.out.println("Encerrando o cliente.");
-                        // Encerra os recursos antes de sair
-                        out.close();
-                        in.close();
-                        socket.close();
-                        return; // Sai do método main e encerra o programa
-                    }
+            out.println(mensagemEnviar);
 
-                    /* Envio da mensagem */
-                    out.println(mensagemEnviar);
+            respostaLoop:
+            while ((resposta = in.readLine()) != null) {
+                if (resposta == null) {
+                    break respostaLoop;
+                }
 
-                    respostaLoop:
-                    while ((resposta = in.readLine()) != null) {
-                        if (resposta == null) {
-                            break respostaLoop;
-                        }
+                if ("Jantar finalizado!".equals(resposta)) {
+                    System.out.println("Jantar finalizado!");
 
-                        if ("Jantar finalizado!".equals(resposta)) {
-                            // Reinicia o bloco interno
-                            System.out.println("Jantar finalizado!");
-                            continue clienteLoop;
-                        } else {
-                            /* Imprime na tela o retorno */
-                            System.out.println("Retornou: [" + resposta + "]");
-                            
-                        }
-                    }
+                } else {
+                    System.out.println("Retornou: [" + resposta + "]");
                 }
             }
-//            /* Finaliza tudo */
-//            out.close();
-//            in.close();
-//            socket.close();
+
         } catch (IOException ex) {
             System.out.println(ex);
         }
     }
 
-    public static void main(String[] args) {
-        SocketClienteTCP socketClienteTCP = new SocketClienteTCP("localhost", 6789);
-    }
 }
